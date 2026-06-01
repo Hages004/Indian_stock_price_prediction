@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://127.0.0.1:8000";
+const API = "https://indian-stock-price-prediction-r58y.onrender.com";
 
 export default function App() {
   const [stocks,    setStocks]    = useState([]);
@@ -14,13 +14,19 @@ export default function App() {
   const [histLoad,  setHistLoad]  = useState(false);
 
 
-  useEffect(() => {
-    fetch(`${API}/stocks`)
-      .then(r => r.json())
-      .then(d => {
+ useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const res = await fetch(`${API}/stocks`,
+          { signal: AbortSignal.timeout(60000) });
+        const d = await res.json();
         setStocks(d.stocks);
         setSelected(d.stocks[0]);
-      });
+      } catch {
+        setTimeout(fetchStocks, 5000);
+      }
+    };
+    fetchStocks();
   }, []);
 
   const handlePredict = async () => {
